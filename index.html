@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gotcha.ai // Multi-Level AI Mind Explainer</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 lg:p-12 relative overflow-x-hidden">
+
+    <button type="button" onclick="toggleSidebar()" class="fixed top-5 left-5 z-40 bg-slate-900/80 hover:bg-indigo-600/30 text-amber-400 hover:text-white px-4 py-2.5 rounded-xl border border-white/10 shadow-2xl transition-warm text-xs font-bold cursor-pointer flex items-center gap-2">
+        <i class="fa-solid fa-clock-rotate-left"></i> <span>Riwayat</span>
+    </button>
+
+    <div id="sidebarHistory" class="fixed top-0 left-0 h-full w-64 premium-glass border-r border-white/10 z-50 transform -translate-x-full transition-warm p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3">
+            <h2 class="text-xs font-extrabold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                <i class="fa-solid fa-history"></i> Riwayat Cari
+            </h2>
+            <button type="button" onclick="toggleSidebar()" class="text-slate-400 hover:text-rose-400 transition-warm cursor-pointer p-1">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+        <div id="historyList" class="flex flex-col gap-2 overflow-y-auto flex-1 pr-1">
+            </div>
+    </div>
+
+    <div id="custom-toast" class="fixed top-5 right-5 z-50 transform translate-y-[-120px] opacity-0 transition-all duration-500 flex items-center gap-3 bg-slate-900 border border-amber-500/30 text-slate-100 px-5 py-4 rounded-2xl shadow-2xl max-w-sm pointer-events-none">
+        <div id="toast-icon" class="text-amber-400"><i class="fa-solid fa-circle-info text-lg"></i></div>
+        <div id="toast-message" class="text-xs font-semibold">Notifikasi sistem</div>
+    </div>
+
+    <div class="w-full max-w-3xl mx-auto space-y-8 py-6">
+
+        <div class="text-center space-y-3">
+            <div class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-500/10 to-amber-500/10 border border-amber-500/20 px-4 py-2 rounded-full text-[10px] sm:text-xs tracking-widest text-amber-400 font-extrabold uppercase mx-auto">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> Inteligensia Edukasi Gotcha
+            </div>
+            <h1 class="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white leading-none">
+                Gotcha<span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-amber-400 bg-clip-text text-transparent">.ai</span>
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+                Ubah materi buku paket, jurnal ilmiah, atau teori ruwet jadi rangkuman asyik yang langsung masuk ke otak kamu!
+            </p>
+        </div>
+
+        <div class="premium-glass rounded-[2rem] p-6 sm:p-8 md:p-10 warm-border-glow">
+            <form id="main-form" class="space-y-6">
+
+                <div id="result-section" class="hidden premium-glass bg-white/[0.01] rounded-2xl p-6 border-l-4 border-l-amber-500 space-y-4 mb-6 transition-warm animate-fade-in">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/10 text-amber-400">
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </span>
+                            <div>
+                                <h3 class="text-xs font-extrabold text-white uppercase tracking-widest">Hasil Terjemahan Otak AI</h3>
+                                <p class="text-[10px] text-slate-500" id="result-meta-level">Level Penjelasan: Anak SD</p>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="btn-copy" class="text-slate-400 hover:text-amber-400 p-2 rounded-lg bg-white/5 border border-white/5 hover:border-amber-500/20 cursor-pointer transition-warm text-xs flex items-center gap-1.5" title="Salin Jawaban">
+                            <i class="fa-regular fa-copy"></i> <span>Salin</span>
+                        </button>
+                    </div>
+                    
+                    <div id="loading-skeleton" class="hidden space-y-3 py-2 animate-pulse">
+                        <div class="h-3 bg-white/10 rounded-full w-2/3"></div>
+                        <div class="h-3 bg-white/10 rounded-full w-full"></div>
+                        <div class="h-3 bg-white/10 rounded-full w-5/6"></div>
+                    </div>
+
+                    <div id="display-result" class="text-sm sm:text-base text-slate-200 leading-relaxed font-normal prose prose-invert max-w-none format-markdown"></div>
+
+                    <div id="roadmapOptionBox" class="hidden bg-slate-950/50 p-4 rounded-xl border border-indigo-500/30 flex flex-col gap-2 mt-4 animate-fade-in">
+                        <p class="text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-route text-amber-400"></i> Apakah kamu mau dibuatkan roadmap detail belajarnya sekarang?
+                        </p>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="mintaRoadmapDetail()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition-warm cursor-pointer">Iya, Buat Roadmap</button>
+                            <button type="button" onclick="document.getElementById('roadmapOptionBox').classList.add('hidden')" class="bg-white/5 hover:bg-white/10 text-slate-300 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-warm cursor-pointer">Tidak, Jelaskan Dulu</button>
+                        </div>
+                    </div>
+
+                    <div id="quickRefineContainer" class="hidden bg-slate-950/40 p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row justify-between items-center gap-3 mt-4">
+                        <div class="flex flex-wrap gap-1.5 items-center">
+                            <span class="text-[10px] uppercase font-extrabold text-slate-500 tracking-wider mr-1">Jelaskan Lagi Tapi:</span>
+                            <button type="button" onclick="refineMateri('gampang')" class="bg-white/5 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-300 text-xs px-2.5 py-1.5 rounded-xl border border-white/5 hover:border-indigo-500/20 transition-warm cursor-pointer">👶 Gampang</button>
+                            <button type="button" onclick="refineMateri('singkat')" class="bg-white/5 hover:bg-purple-500/20 text-slate-300 hover:text-purple-300 text-xs px-2.5 py-1.5 rounded-xl border border-white/5 hover:border-purple-500/20 transition-warm cursor-pointer">⚡ Singkat</button>
+                            <button type="button" onclick="refineMateri('analogi')" class="bg-white/5 hover:bg-amber-500/20 text-slate-300 hover:text-amber-300 text-xs px-2.5 py-1.5 rounded-xl border border-white/5 hover:border-amber-500/20 transition-warm cursor-pointer">🎨 Analogi</button>
+                            <button type="button" onclick="refineMateri('detail')" class="bg-white/5 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-300 text-xs px-2.5 py-1.5 rounded-xl border border-white/5 hover:border-emerald-500/20 transition-warm cursor-pointer">🎓 Detail</button>
+                        </div>
+                        
+                        <button type="button" onclick="mulaiUjian()" class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-extrabold text-[10px] tracking-wider px-4 py-2.5 rounded-xl shadow-lg transition-warm uppercase cursor-pointer shrink-0 flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-pen-to-square"></i> Mulai Ujian (3 Mnt)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center px-1">
+                        <label class="text-[10px] sm:text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                            Tempel Materi Ruwet di Sini
+                        </label>
+                        <span id="char-counter" class="text-[10px] text-slate-600 font-semibold">0 Karakter</span>
+                    </div>
+                    <div class="relative group">
+                        <textarea id="text-input" rows="5" required 
+                            placeholder="Contoh: Salin paragraf buku paket tentang metamorfosis amfibi, cara kerja mesin bubut, atau teori ekonomi yang membingungkan..."
+                            class="w-full bg-slate-950/60 border border-white/5 rounded-2xl px-5 py-4 text-xs sm:text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-warm resize-none shadow-inner"></textarea>
+                        <div class="absolute right-4 bottom-4 text-slate-700 group-focus-within:text-indigo-500/40 transition-warm">
+                            <i class="fa-solid fa-pen-nib text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-[10px] sm:text-xs font-extrabold text-slate-400 uppercase tracking-widest px-1">
+                        Sesuaikan dengan Kapasitas Otak Penerima:
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="education-level" value="sd" checked class="hidden">
+                            <div class="level-card h-full bg-white/[0.02] border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-warm">
+                                <span class="level-icon text-xl sm:text-2xl mb-1.5 text-slate-500 transition-warm">🧒</span>
+                                <span class="level-title text-xs font-bold text-slate-400 transition-warm block">Anak SD</span>
+                                <span class="text-[9px] text-slate-500 mt-0.5">Sederhana & Cerita</span>
+                            </div>
+                        </label>
+
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="education-level" value="smp" class="hidden">
+                            <div class="level-card h-full bg-white/[0.02] border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-warm">
+                                <span class="level-icon text-xl sm:text-2xl mb-1.5 text-slate-500 transition-warm">🧑‍🎓</span>
+                                <span class="level-title text-xs font-bold text-slate-400 transition-warm block">Anak SMP</span>
+                                <span class="text-[9px] text-slate-500 mt-0.5">Poin Esensial</span>
+                            </div>
+                        </label>
+
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="education-level" value="sma-smk" class="hidden">
+                            <div class="level-card h-full bg-white/[0.02] border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-warm">
+                                <span class="level-icon text-xl sm:text-2xl mb-1.5 text-slate-500 transition-warm">🛠️</span>
+                                <span class="level-title text-xs font-bold text-slate-400 transition-warm block">SMA / SMK</span>
+                                <span class="text-[9px] text-slate-500 mt-0.5">Taktik Cheat Sheet</span>
+                            </div>
+                        </label>
+
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="education-level" value="mahasiswa" class="hidden">
+                            <div class="level-card h-full bg-white/[0.02] border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center text-center transition-warm">
+                                <span class="level-icon text-xl sm:text-2xl mb-1.5 text-slate-500 transition-warm">🎓</span>
+                                <span class="level-title text-xs font-bold text-slate-400 transition-warm block">Mahasiswa</span>
+                                <span class="text-[9px] text-slate-500 mt-0.5">Analisis Kritis</span>
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-amber-600 hover:from-indigo-500 hover:to-amber-500 text-white font-extrabold py-4 px-6 rounded-2xl text-xs sm:text-sm tracking-widest uppercase transition-warm shadow-xl shadow-indigo-950/50 hover:shadow-amber-950/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2">
+                        <span>Terjemahkan Materi Sekarang</span> 
+                        <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+    <div id="examModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div class="premium-glass border border-white/10 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[85vh] animate-fade-in">
+            <div class="bg-gradient-to-r from-indigo-950 to-slate-900 p-5 text-white flex justify-between items-center border-b border-white/5">
+                <div>
+                    <h3 class="font-bold text-sm tracking-wide text-amber-400 uppercase flex items-center gap-1.5">
+                        <i class="fa-solid fa-graduation-cap"></i> Ujian Sederhana Gotcha
+                    </h3>
+                    <p class="text-[10px] text-slate-400">Uji seberapa meresap materi ke otakmu</p>
+                </div>
+                <div class="bg-slate-950 px-3 py-1.5 rounded-xl border border-amber-500/40 text-amber-400 font-mono text-xs font-bold flex items-center gap-1.5">
+                    <i class="fa-regular fa-clock animate-pulse"></i> <span id="examTimerDisplay">3:00</span>
+                </div>
+            </div>
+            
+            <div id="quizQuestionsContainer" class="p-5 overflow-y-auto flex-1 text-slate-200 space-y-4">
+                </div>
+
+            <div class="p-4 bg-slate-950/80 border-t border-white/5 flex justify-end">
+                <button type="button" onclick="selesaiUjian()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs tracking-wider px-5 py-2.5 rounded-xl shadow-md transition-warm cursor-pointer uppercase">
+                    Selesai & Cek Skor <i class="fa-solid fa-circle-check ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
